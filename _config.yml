@@ -1,7 +1,8 @@
 title: Jp4Mobile
 description: Under Construction
-baseurl: Jp4Mobile.com
-url: jp4mobile.github.io
+baseurl: ""
+domain: www.Jp4Mobile.com
+url: https://jp4mobile.github.io
 
 theme: minima
 plugins:
