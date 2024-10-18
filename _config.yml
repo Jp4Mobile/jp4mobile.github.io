@@ -5,6 +5,7 @@ baseurl: ""
 domain: www.Jp4Mobile.com
 url: https://jp4mobile.com
 logo: "/img/jp4mobile-logo-2x.png"
+favicon: "/img/favicon.ico"
 theme: minima
 plugins:
   - jekyll-avatar
