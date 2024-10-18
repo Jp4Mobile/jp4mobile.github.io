@@ -1,0 +1,16 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- seo -%}
+  <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
+	<link rel="icon" type="image/png" href="/img/favicon-48x48.png" sizes="48x48" />
+	<link rel="icon" type="image/svg+xml" href="/img/favicon.svg" />
+	<link rel="shortcut icon" href="/img/favicon.ico" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
+	<link rel="manifest" href="/img/site.webmanifest" />
+  {%- feed_meta -%}
+  {%- if jekyll.environment == 'production' and site.google_analytics -%}
+    {%- include google-analytics.html -%}
+  {%- endif -%}
+</head>
