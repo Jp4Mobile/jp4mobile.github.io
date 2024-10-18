@@ -1,12 +1,31 @@
 title: Jp4Mobile
-description: Under Construction
+author: Jp
+description: Jp4Mobile is mainly about iOS, Swift, and SwiftUI.
 baseurl: ""
 domain: www.Jp4Mobile.com
-url: https://jp4mobile.github.io
-
+url: https://jp4mobile.com
+logo: "/img/jp4mobile-logo-2x.png"
 theme: minima
 plugins:
+  - jekyll-avatar
   - jekyll-feed
-
+  - jekyll-mentions
+  - jekyll-redirect-from
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jemoji
+show_excerpts: true
+excerpt_separator: "<!--more-->"
+sass:
+  style: compressed
 exclude:
   - README.md
+# SocialMedia
+twitter_username: jplafond
+github_username: Jp4Mobile
+linkedin_username: jp-lafond
+
+# Mastodon instances
+mastodon:
+- username: AltoidLover
+  instance: tech.lgbt
