@@ -1,3 +1,11 @@
-theme: minima
 title: Jp4Mobile
 description: Under Construction
+baseurl: Jp4Mobile.com
+url: jp4mobile.github.io
+
+theme: minima
+plugins:
+  - jekyll-feed
+
+exclude:
+  - README.md
