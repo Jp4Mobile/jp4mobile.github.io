@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "TaskManager Overview"
-date:   2024-10-20 10:00:01 -0400
+date:   2024-10-19 13:30:01 -0400
 tags: taskmanager taskpaper productivity
 category: coding
 
