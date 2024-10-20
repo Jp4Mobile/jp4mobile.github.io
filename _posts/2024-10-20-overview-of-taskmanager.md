@@ -107,6 +107,8 @@ As I work through my deliverables, I'll be posting about some of the lessons lea
 
 Posts will include [sample code][sample-code] in the [Jp4Mobile repo][jp4mobile-repo]. Feel free to reach out if you have questions.
 
+Next week, we'll talk about enums for data models. 
+
 [task-paper]: https://www.TaskPaper.com
 [hogs-bay]: https://www.HogsBaySoftware.com
 [event-kit]: https://developer.apple.com/documentation/eventkit
