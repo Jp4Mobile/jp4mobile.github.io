@@ -1,5 +1,4 @@
 ---
-layout: post
 title: "The Power of Enums in Swift"
 date: 2024-10-27 10:00:01 -0400
 tags: taskmanager enums
