@@ -33,3 +33,10 @@ linkedin_username: jp-lafond
 mastodon:
 - username: AltoidLover
   instance: tech.lgbt
+
+defaults:
+  - scope:
+      path: _posts
+    values:
+      author: Jp
+      layout: post
