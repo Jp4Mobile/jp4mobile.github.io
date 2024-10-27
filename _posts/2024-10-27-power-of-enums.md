@@ -137,7 +137,7 @@ Not only is this easier to read and use, but it allows the ability to use models
 
 They can also be used as arguments to clarify APIs.
 
-ie; `print(today.string(format: .date))` Which is simple and easily understood as, _Print the variable of today as a formatted string using the date format.__
+ie; `print(today.string(format: .date))` Which is simple and easily understood as, _Print the variable of today as a formatted string using the date format._
 
 That can be done rather easily.
 
