@@ -14,46 +14,46 @@ All of the code for this blog post is in this [sample code repo][post-project].
 <!--more-->
 
 We want to make this as simple for users of these functions as possible, so the API we'd like is this:
-```
+{% highlight swift %}
 let halloween = Date(format: .date, "2024-10-31")
 let rembembranceDay = Date(format: .dateTime, "2024-11-11 11:00")
-```
+{% endhighlight %}
 
 And the converse:
-```
+{% highlight swift %}
 let apptDay = Date().string(format: .date)
 let apptDayTime = Date().string(format: .dateTime)
-```
+{% endhighlight %}
 
 ## Gotchas
 
 An optimistic idea of how to handle this might be to use convert via `DateComponents`. We can split the formatted strings into integer components and then convert to a date.
 
-```
+{% highlight swift %}
 // Optimistic, but problematic conversion:
 let date = Calendar.current.date(from: DateComponents(year: 2024, month: 10, day: 31)
 // This will result in a date for "2024-10-31 00:00"
-```
+{% endhighlight %}
 
 Looks good, right?
 
 Any programmer that has worked with dates will tell you about the perils of dealing with `Date` conversions. _Leap Day_ and the _Daylight Savings Time_ are edge cases that need to be dealt with.
 
-```
+{% highlight swift %}
 // Illustrating the problem.
 let leapDay2024 = Calendar.current.date(from: DateComponents(year: 2024, month: 2, day: 29)
 // This will result in a date for "2024-02-29 00:00"
 let leapDay2023 = Calendar.current.date(from: DateComponents(year: 2023, month: 2, day: 29)
 // This will result in a date for "2023-03-01 00:00", as there was no leap day in 2023.
-```
+{% endhighlight %}
 
 Apple's `DateFormatter` handles both the string parsing and the validation.
 
-## `Date` Extension
+## Date Extension
 
 [Sample code][date-extensions-swift]
 
-```
+{% highlight swift %}
 extension Date {
     // MARK: - TMDateFormat
     /// Standardized TM Date Formats
@@ -100,7 +100,7 @@ extension Date {
         self = date
     }
 }
-```
+{% endhighlight %}
 
 By setting up the internal enum in a `Date` extension, we are able to leverage this model to keep track of our known format strings and ensure that using the `TMDateFormat` in the initializer and string conversion functions for a nice and clean API usage.
 
@@ -110,7 +110,7 @@ With an eye on what we want to do next, we know that we'll need to convert dates
 
 Adding the `components` property to the `TMDateFormat` ensures the API will continue to be clear and easy to use.
 
-```
+{% highlight swift %}
 /// Date Components
 var components: Set<Calendar.Component> {
 	switch self {
@@ -120,10 +120,10 @@ var components: Set<Calendar.Component> {
 		return [.year, .month, .day, .hour, .minute]
 	}
 }
-```
+{% endhighlight %}
 
 Then in out `Date` extension, we can add a function to do the conversion:
-```
+{% highlight swift %}
 private var currentCalendar: Calendar {
    Calendar.current
 }
@@ -132,7 +132,7 @@ private var currentCalendar: Calendar {
 func toDateComponents(format: TMDateFormat) -> DateComponents? {
 	currentCalendar.dateComponents(format.components, from: self)
 }
-```
+{% endhighlight %}
 
 ## Other Conversions
 
@@ -147,16 +147,16 @@ The universe of `TaskManager` date formats is small and while our `.date` and `.
 
 These formats can easily be converted into a date type model:
 
-```
+{% highlight swift %}
 enum TMDateType {
    case date(Date)
    case beginEndDate(Date, Date)
 }
-```
+{% endhighlight %}
 
 We can add some dynamic properties to extract out the start and optional end date to make usage easier:
 
-```
+{% highlight swift %}
 var startDate: Date {
   switch self {
     case .date(let date):
@@ -172,7 +172,7 @@ var endDate: Date? {
   }
   return end
 }
-```
+{% endhighlight %}
 
 All of the sample code is here: [`TMDateType`][date-parameters-swift]
 
@@ -180,7 +180,7 @@ All of the sample code is here: [`TMDateType`][date-parameters-swift]
 
 This is relatively straightforward, if a bit repetitive.
 
-```
+{% highlight swift %}
 struct DateParameters {
   let year: Int
   let month: Int
@@ -207,13 +207,13 @@ struct DateTimeDateTimeParameters {
   let start: DateTimeParameters
   let end: DateTimeParameters
 }
-```
+{% endhighlight %}
 
 But there's some infrastructure work that will need to convert our various parameter models into formatted strings and our `TMDateType` model.
 
 By leveraging protocols and ensuring that each of the parameter models conform to them, we can easily create a uniform API for our parameter models.
 
-```
+{% highlight swift %}
 protocol FormattedDateRepresentable {
   var formattedDate: String { get }
 }
@@ -221,21 +221,21 @@ protocol FormattedDateRepresentable {
 protocol ParameterConvertible {
   func toDateType() throws -> TMDateType
 }
-```
+{% endhighlight %}
 
 Then we can convert to formatted strings with a useful extension to `Int` for string formatting them with fixed digits:
 
-```
+{% highlight swift %}
 private extension Int {
     func leadingZeroString(digits: Int = 2) -> String {
         let format = "%0\(digits)d"
         return String(format: format, self)
     }
 }
-```
+{% endhighlight %}
 
 Looking at our `DateParameters` and `TimeParameters` models:
-```
+{% highlight swift %}
 struct DateParameters: FormattedDateRepresentable {
     ...
     var formattedDate: String {
@@ -250,11 +250,11 @@ struct TimeParameters: FormattedDateRepresentable {
         "\(hour.leadingZeroString()):\(minute.leadingZeroString())"
     }
 }
-```
+{% endhighlight %}
 
 Converting to `TMDateType` will use this formatted strings and our `Date` extensions. By throwing errors for the failure cases, we can alert callers to incorrect data in our parameter models, when we try to convert them into `Date` objects.
 
-```
+{% highlight swift %}
 struct DateParameters: FormattedDateRepresentable, ParameterConvertible {
 	...
     func toDateType() throws -> TMDateType {
@@ -265,11 +265,11 @@ struct DateParameters: FormattedDateRepresentable, ParameterConvertible {
        return .date(date)
     }
 }
-```
+{% endhighlight %}
 
 That's the bulk of the logic. The rest is just stitching parameter models together with some edge case logic to ensure that end dates are always after begin dates.
 
-```
+{% highlight swift %}
 // DateTimeParameters conversions
 var formattedDate: String {
 	"\(date.formattedDate) \(time.formattedDate)"
@@ -309,11 +309,11 @@ func toDateType() throws -> TMDateType {
 	
 	return .beginEndDate(startDate, endDate)
 }
-```
+{% endhighlight %}
 
 With that under our belts, we can add to `Date` extension, so that we can convert to and from our parameter models.
 
-```
+{% highlight swift %}
 // MARK: Parameter Model Conversions
 func toDateParameters() -> DateParameters? {
    let components = currentCalendar.dateComponents(TMDateFormat.date.components, from: self)
@@ -353,7 +353,7 @@ init?(date parameters: DateParameters) {
 init?(dateTime parameters: DateTimeParameters) {
    self.init(format: .dateTime, parameters.formattedDate)
 }
-```
+{% endhighlight %}
 
 ## Unit Tests
 
@@ -370,7 +370,7 @@ I'd recommend against trying to test everything. Just going with the main logic 
 
 For example, in `DateParameters` and the `DateParametersTests`, I can do the end to end tests to verify that parameter models convert to and from dates properly and that tests the whole flow.
 
-```
+{% highlight swift %}
 var halloween: Date {
 	Date(format: .dateTime, "2024-10-31 10:31") ?? Date()
 }
@@ -387,7 +387,7 @@ func test_dateTimeModel_convertsProperly() throws {
 	sut = try halloween.toDateTimeParameters()?.toDateType()
 	XCTAssertEqual(sut, .date(halloween))
 }
-```
+{% endhighlight %}
 
 Flipping through the sample code, you'll see we also test our formatted data to ensure that functionality as well.
 
@@ -404,7 +404,7 @@ In `DateExtensionsTests`, unfortunately, we have to test more of the invalid pat
 
 The conversions back and forth from formatted `String` to `Date` and back was relatively simple to code up.
 
-```
+{% highlight swift %}
 // Happy Path testing...
 func test_init_fromDate_withValidInput_returnsDate() {
 	let dateFromYMD = Date(format: .date, "2024-10-31")
@@ -422,7 +422,7 @@ func test_init_fromDate_withInvalidInput_returnsNil() {
 	XCTAssertNil(Date(date: .init(year: 2024, month: 13, day: 31)))
 	XCTAssertNil(Date(date: .init(year: 2024, month: 10, day: 32)))
 }
-```
+{% endhighlight %}
 
 The rest of the unit tests are much of the same, as we continue to test the other conversions.
 
