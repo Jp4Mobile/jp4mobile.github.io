@@ -37,7 +37,7 @@ Now, let's walk through the logic of my `EKManager` which will wrap the ``EventK
 
 The access wrappers are simple to write:
 
-```
+{% highlight swift %}
 func requestCalendarAccess() async throws {
   do {
     let access = try await eventStore.requestFullAccessToEvents()
@@ -47,7 +47,7 @@ func requestCalendarAccess() async throws {
     throw error
   }
 }
-```
+{% endhighlight %}
 
 We use the event store and then through that, we request access for either event/calendar access or reminder access. I illustrated the event/calendar access, but reminder access is equally straightforward.
 
@@ -55,7 +55,7 @@ We use the event store and then through that, we request access for either event
 
 Within the places that need to access your events or reminders, the logic also follows, though it may be repetitive in the various places you use it.
 
-```
+{% highlight swift %}
 if !hasCalendarAccess {
   try await requestCalendarAccess()
 }
@@ -63,7 +63,7 @@ guard hasCalendarAccess else {
   throw EKManagerError.calendarAccessDenied
 }
 // At this point you can continue to your business logic.
-```
+{% endhighlight %}
 
 ## Retrieving Data
 
@@ -84,12 +84,12 @@ Or you could create your own calendars. Myself, I prefer to create my own calend
 
 A newly created calendar will need at least a title and a source.
 
-```
+{% highlight swift %}
 let calendar = EKCalendar(for: entityType, eventStore: eventStore)
 calendar.title = "TaskManager"
 calendar.source = try await getEventSource(for: entityType)
 try eventStore.saveCalendar(calendar, commit: true)
-```
+{% endhighlight %}
 
 ### Finding the Source
 
@@ -97,7 +97,7 @@ An `EKSourceType` can represent a variety of sources. Usually, it's a good idea 
 
 The logic is basically, use the same source as the default calendar for that entity, if possible. Otherwise, try to see if iCloud is possible for the user. If that doesn't work, try to see if local access is available.
 
-```
+{% highlight swift %}
 func getEventSource(for entityType: EKEntityType) async throws -> EKSource {
 	let `default` = try await getDefaultCalendar(for: entityType).source
 	let isICloudPresent: (EKSource) -> Bool = {
@@ -112,7 +112,7 @@ func getEventSource(for entityType: EKEntityType) async throws -> EKSource {
 
 	return source
 }
-```
+{% endhighlight %}
 
 ### Retrieving Events or Reminders
 
@@ -122,7 +122,7 @@ In my initial code, I went with the more generic to retrieve all events and remi
 
 The `getEvents()` function creates a predicate to search for calendar events within a known calendar for the next month. Start and end dates can be reconfigured to work best with individual requirements or for any calendar that the user has access to.
 
-```
+{% highlight swift %}
 func getEvents() async throws -> [EKEvent] {
 	let calendar = try await getCalendarToUse(for: .event)
 
@@ -136,7 +136,7 @@ func getEvents() async throws -> [EKEvent] {
 
 	return allEvents
 }
-```
+{% endhighlight %}
 
 The `getReminders()` function is a bit easier, as reminders are not required to have dates, so the predicate only checks against a specific reminder calendar.
 
@@ -146,7 +146,7 @@ Most of the ``EventKit`` functionality has shifted from completion handlers to t
 
 However Apple has an easy to use way to convert completion handlers to async calls leveraging the ``CheckedContinuation`` interface.
 
-```
+{% highlight swift %}
 func getReminders() async throws -> [EKReminder] {
 	let calendar = try await getCalendarToUse(for: .reminder)
 
@@ -159,7 +159,7 @@ func getReminders() async throws -> [EKReminder] {
 		}
 	}
 }
-```
+{% endhighlight %}
 
 By using `withCheckedContinuation`, the completion handler for the call you're making can be converted to an `async` call that can return a value, throw an error, or just run asynchronously.
 
@@ -167,16 +167,16 @@ By using `withCheckedContinuation`, the completion handler for the call you're m
 
 This certainly works, but retrieving all of them to then search the full list is going to cause problems at scale.
 
-It would be better to retrieve events and items by an ID number, so that the first time it's been retrieved, it can be manipulated by an individual item.
+It would be better to retrieve events and items by an ID number, so that after the first time it's been retrieved, it can be manipulated by an individual item.
 
 There are simple retrieval methods for that:
 
 You can use `eventStore.event(withIdentifier: id)` for calendar events.
 
-```
+{% highlight swift %}
 guard let calendarItem = eventStore.calendarItem(withIdentifier: id),
       let reminder = calendarItem as? EKReminder else {...}
-```
+{% endhighlight %}
 ### Removing Events or Reminders
 
 The `eventStore.remove(_ event:, span:, commit:)` and `eventStore.remove(_ reminder:, commit:)` functions take the `EKEvent` and `EKReminder` models and remove them.
@@ -185,7 +185,7 @@ The `commit:` parameter with both functions indicates whether the removal happen
 
 The remove function wrapper and some proposed usages could help explain this a bit better:
 
-```
+{% highlight swift %}
 func remove(event: EKEvent, shouldBatch: Bool = false) async throws {
 	if !hasCalendarAccess {
 		try await requestCalendarAccess()
@@ -197,10 +197,10 @@ func remove(event: EKEvent, shouldBatch: Bool = false) async throws {
 	// If we should batch, we shouldn't commit.
 	try eventStore.remove(event, span:.thisEvent,  commit: !shouldBatch)
 }
-```
+{% endhighlight %}
 
 This could be used in this manner:
-```
+{% highlight swift %}
 let titledEvents = try await getEvents()
    .filter { $0.title == specificTitle }
 
@@ -217,29 +217,29 @@ for titledEvent in titledEvents {
 }
 // After all the events were removed, we commit.
 try ekManager.eventStore.commit()
-```
+{% endhighlight %}
 
 ### Create Event or Reminder
 
 Similar to creating a calendar, creating a calendar event or a reminder uses the same logic after making sure they have the appropriate access for calendars and reminders:
 
-```
+{% highlight swift %}
 let event = EKEvent(eventStore: eventStore)
 // set the values: title, startDate, optional endDate, optional notes, and the calendar to create this event into.
 try eventStore.save(event, span: .thisEvent, commit: shouldCommit)
-```
+{% endhighlight %}
 And
-```
+{% highlight swift %}
 let reminder = EKReminder(eventStore: eventStore)
 // set the values: title, optional dueDateComponents (which may either be a date or a date with time), notes, and the calendar to create this reminder into.
 try eventStore.save(reminder, commit: shouldCommit)
-```
+{% endhighlight %}
 
 ### Updating Events or Reminders
 
 Now that we can retrieve a known event or reminder from, updating it's fairly straightforward:
 
-```
+{% highlight swift %}
 func update(_ event: EKEvent, shouldBatch: Bool = false) async throws {
 	try eventStore.save(event, span: .thisEvent)
 
@@ -251,16 +251,16 @@ func update(_ event: EKEvent, shouldBatch: Bool = false) async throws {
 func update(_ reminder: EKReminder, shouldBatch: Bool = false) async throws {
 	try eventStore.save(reminder, commit: !shouldBatch)
 }
-```
+{% endhighlight %}
 
 ### Manual Testing
 
 For this week, the only testing that was done was manual testing. Inside the sample code's `ContentView`, you may see the `EKManager` being called directly to create reminders and events (as well as the requesting of permissions, creation of calendar, etc... that goes on behind the scenes for that to happen).
 
-```
+{% highlight swift %}
 try await EKManager.shared.create(.reminder, model: testData.reminder)
 try await EKManager.shared.create(.event, model: testData.event)
-```
+{% endhighlight %}
 
 ---
 
