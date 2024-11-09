@@ -99,18 +99,18 @@ The logic is basically, use the same source as the default calendar for that ent
 
 {% highlight swift %}
 func getEventSource(for entityType: EKEntityType) async throws -> EKSource {
-	let `default` = try await getDefaultCalendar(for: entityType).source
-	let isICloudPresent: (EKSource) -> Bool = {
-		$0.title.lowercased().contains("icloud")
-	}
-	let iCloud = eventStore.sources.first(where: isICloudPresent)
-	let local = eventStore.sources.first(where: { $0.sourceType == .local })
+   let `default` = try await getDefaultCalendar(for: entityType).source
+   let isICloudPresent: (EKSource) -> Bool = {
+      $0.title.lowercased().contains("icloud")
+   }
+   let iCloud = eventStore.sources.first(where: isICloudPresent)
+   let local = eventStore.sources.first(where: { $0.sourceType == .local })
 
-	guard let source = `default` ?? iCloud ?? local else {
-		throw EKManagerError.noSourceFound
-	}
+   guard let source = `default` ?? iCloud ?? local else {
+      throw EKManagerError.noSourceFound
+   }
 
-	return source
+   return source
 }
 {% endhighlight %}
 
@@ -123,18 +123,20 @@ In my initial code, I went with the more generic to retrieve all events and remi
 The `getEvents()` function creates a predicate to search for calendar events within a known calendar for the next month. Start and end dates can be reconfigured to work best with individual requirements or for any calendar that the user has access to.
 
 {% highlight swift %}
-func getEvents() async throws -> [EKEvent] {
-	let calendar = try await getCalendarToUse(for: .event)
+func getEvents(from startDate: Date = Date()) async throws -> [EKEvent] {
+   let calendar = try await getCalendarToUse(for: .event)
 
-	let startDate = Date()
-	let endDate = Calendar.current.date(byAdding: .month, value: 1, to: startDate) ?? startDate
-	let predicate = eventStore.predicateForEvents(withStart: startDate,
-												  end: endDate,
-												  calendars: [calendar])
+   let endDate = Calendar.current.date(byAdding: .month,
+                                       value: 1,
+                                       to: startDate) ?? startDate
+   let predicate = 
+       eventStore.predicateForEvents(withStart: startDate,
+                                     end: endDate,
+                                     calendars: [calendar])
 	
-	let allEvents = eventStore.events(matching: predicate)
+   let allEvents = eventStore.events(matching: predicate)
 
-	return allEvents
+   return allEvents
 }
 {% endhighlight %}
 
@@ -148,16 +150,16 @@ However Apple has an easy to use way to convert completion handlers to async cal
 
 {% highlight swift %}
 func getReminders() async throws -> [EKReminder] {
-	let calendar = try await getCalendarToUse(for: .reminder)
+   let calendar = try await getCalendarToUse(for: .reminder)
 
-	let predicate = eventStore.predicateForReminders(in: [calendar])
+   let predicate = eventStore.predicateForReminders(in: [calendar])
 
-	return await withCheckedContinuation { continuation in
+   return await withCheckedContinuation { continuation in
 
-		eventStore.fetchReminders(matching: predicate) { reminders in
-			continuation.resume(returning: reminders ?? [])
-		}
-	}
+      eventStore.fetchReminders(matching: predicate) { reminders in
+         continuation.resume(returning: reminders ?? [])
+      }
+   }
 }
 {% endhighlight %}
 
@@ -195,7 +197,9 @@ func remove(event: EKEvent, shouldBatch: Bool = false) async throws {
 	}
 
 	// If we should batch, we shouldn't commit.
-	try eventStore.remove(event, span:.thisEvent,  commit: !shouldBatch)
+	try eventStore.remove(event, 
+	                      span:.thisEvent,
+                              commit: !shouldBatch)
 }
 {% endhighlight %}
 
