@@ -28,11 +28,31 @@ exclude:
 twitter_username: jplafond
 github_username: Jp4Mobile
 linkedin_username: jp-lafond
+bluesky_username: jp.jp4mobile.com
 
 # Mastodon instances
 mastodon:
-- username: AltoidLover
-  instance: tech.lgbt
+  - username: AltoidLover
+    instance: tech.lgbt
+  - username: Jp4Mobile
+    instance: iosdev.space
+  
+# social_links:
+#   - title: Jp4Mobile SampleCode
+#     icon: github
+#     url: "https://github.com/Jp4Mobile/SampleCode"
+#   - title: Twitter
+#     icon: x-twitter
+#     url: "https://x.com/jplafond"
+#   - title: Bluesky
+#     icon: bluesky
+#     url: "https://bsky.app/profile/jp.jp4mobile.com"
+#   - title: Mastodon Tech.LGBT
+#     icon: mastodon
+#     url: "https://tech.lgbt/@AltoidLover"
+#   - title: Mastodon iOSDev.space
+#     icon: mastodon
+#     url: "https://iosdev.space/@Jp4Mobile"
 
 defaults:
   - scope:
