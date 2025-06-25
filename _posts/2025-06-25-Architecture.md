@@ -1,6 +1,6 @@
 ---
 title: Architectures for SwiftUI Projects
-date: 2025-06-25 10:00:01 -0400
+date: 2025-06-25 10:00:01 -0000
 tags: taskmanager swiftui architecture tca mvvm
 category: coding
 ---
